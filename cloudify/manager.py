@@ -124,9 +124,8 @@ def get_rest_client():
         # security enabled
         headers = utils.get_auth_header(utils.get_cloudify_username(),
                                         utils.get_cloudify_password())
-        if utils.is_ssl_enabled().lower() == 'true':
-            rest_port = constants.SECURED_REST_PORT
-            protocol = constants.SECURED_PROTOCOL
+        rest_port = utils.get_manager_rest_service_port()
+        protocol = utils.get_manager_rest_service_protocol()
 
         if utils.is_verify_ssl_certificate().lower() == 'false':
             trust_all = True
