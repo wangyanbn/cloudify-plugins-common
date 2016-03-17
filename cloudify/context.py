@@ -300,10 +300,11 @@ class SecurityContext(object):
         else:
             self._security_context = {
                 'security_enabled': False,
-                'ssl_enabled': False,
-                'verify_ssl_certificate': False,
+                'manager_port': '80',
+                'manager_protocol': 'http',
                 'cloudify_username': '',
-                'cloudify_password': ''
+                'cloudify_password': '',
+                'verify_ssl_certificate': False,
             }
 
     def to_dict(self):
@@ -315,14 +316,14 @@ class SecurityContext(object):
         return self._security_context.get('security_enabled')
 
     @property
-    def ssl_enabled(self):
-        """True if SSL is enabled, False otherwise"""
-        return self._security_context.get('ssl_enabled')
+    def manager_port(self):
+        """The port of the cloudify's REST server"""
+        return self._security_context.get('manager_port')
 
     @property
-    def verify_ssl_certificate(self):
-        """True if SSL certificate should be verified, False otherwise"""
-        return self._security_context.get('verify_ssl_certificate')
+    def manager_protocol(self):
+        """The protocol of the cloudify's REST server"""
+        return self._security_context.get('manager_protocol')
 
     @property
     def cloudify_username(self):
@@ -333,6 +334,11 @@ class SecurityContext(object):
     def cloudify_password(self):
         """The password of the currently active user"""
         return self._security_context.get('cloudify_password')
+
+    @property
+    def verify_ssl_certificate(self):
+        """True if SSL certificate should be verified, False otherwise"""
+        return self._security_context.get('verify_ssl_certificate')
 
 
 class NodeContext(EntityContext):

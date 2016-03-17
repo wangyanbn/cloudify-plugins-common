@@ -141,13 +141,6 @@ def is_security_enabled():
     return os.environ[constants.SECURITY_ENABLED_KEY]
 
 
-def is_ssl_enabled():
-    """
-    Returns True if SSL is enabled, False otherwise
-    """
-    return os.environ[constants.SSL_ENABLED_KEY]
-
-
 def get_manager_rest_service_port():
     """
     Returns the port the manager REST service is running on.
