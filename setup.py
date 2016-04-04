@@ -38,7 +38,7 @@ except ImportError as e:
 
 setup(
     name='cloudify-plugins-common',
-    version='3.4a2',
+    version='3.4a4',
     author='cosmo-admin',
     author_email='cosmo-admin@gigaspaces.com',
     packages=['cloudify',
