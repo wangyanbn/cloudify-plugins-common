@@ -48,7 +48,7 @@ class AMQPClient(object):
         self.channel = None
         self._is_closed = False
         if amqp_host is None:
-            amqp_host = utils.get_manager_ip()
+            amqp_host = utils.get_internal_manager_host()
         credentials = pika.credentials.PlainCredentials(
             username=amqp_user,
             password=amqp_pass)

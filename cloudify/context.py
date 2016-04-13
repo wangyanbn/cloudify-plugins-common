@@ -257,7 +257,7 @@ class BootstrapContext(object):
         if bootstrap_agent.broker_ip:
             attributes['broker_ip'] = bootstrap_agent.broker_ip
         elif fallback_to_manager_ip:
-            attributes['broker_ip'] = utils.get_manager_ip()
+            attributes['broker_ip'] = utils.get_internal_manager_host()
         attributes['broker_user'] = broker_user
         attributes['broker_pass'] = broker_pass
         attributes['broker_ssl_enabled'] = bootstrap_agent.broker_ssl_enabled
