@@ -113,13 +113,12 @@ def get_rest_client():
     :returns: A REST client configured to connect to the manager in context
     :rtype: cloudify_rest_client.CloudifyClient
     """
-    manager_ip = utils.get_manager_ip()
+    rest_host = utils.get_manager_rest_service_host()
     rest_port = constants.DEFAULT_REST_PORT
-    protocol = constants.DEFAULT_PROTOCOL
+    rest_protocol = constants.DEFAULT_PROTOCOL
 
     if not utils.is_security_enabled():
-        rest_client = CloudifyClient(host=manager_ip, port=rest_port,
-                                     protocol=protocol)
+        rest_client = CloudifyClient(rest_host, rest_port, rest_protocol)
     else:
         # security enabled
         headers = utils.get_auth_header(utils.get_cloudify_username(),
