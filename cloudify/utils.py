@@ -113,13 +113,6 @@ def setup_logger(logger_name,
     return logger
 
 
-def get_manager_ip():
-    """
-    Returns the IP address of manager inside the management network.
-    """
-    return os.environ[constants.MANAGER_IP_KEY]
-
-
 def get_manager_file_server_blueprints_root_url():
     """
     Returns the blueprints root url in the file server.
@@ -146,6 +139,13 @@ def is_security_enabled():
     Returns True if REST security is enabled, False otherwise
     """
     return os.environ[constants.SECURITY_ENABLED_KEY]
+
+
+def get_manager_rest_service_host():
+    """
+    Returns the host the manager REST service is running on.
+    """
+    return os.environ[constants.MANAGER_REST_HOST_KEY]
 
 
 def get_manager_rest_service_port():
