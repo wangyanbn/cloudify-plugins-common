@@ -133,7 +133,7 @@ def get_rest_client():
             trust_all = False
             cert_path = utils.get_local_certificate_path()
 
-        rest_client = CloudifyClient(host=manager_ip, port=rest_port,
+        rest_client = CloudifyClient(host=rest_host, port=rest_port,
                                      protocol=protocol, headers=headers,
                                      cert=cert_path, trust_all=trust_all)
 
