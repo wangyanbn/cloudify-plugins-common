@@ -136,7 +136,8 @@ def get_manager_file_server_url():
 
 def get_internal_manager_host():
     """
-    Returns the IP or hostname through which internal components reach the manager.
+    Returns the IP or hostname through which internal components reach
+    the manager.
     """
     return os.environ[constants.MANAGER_INTERNAL_HOST_KEY]
 
