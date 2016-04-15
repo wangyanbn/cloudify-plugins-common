@@ -23,7 +23,6 @@ import Queue
 from proxy_tools import proxy
 
 from cloudify import context
-from cloudify.context import SecurityContext
 from cloudify.manager import (get_node_instance,
                               update_node_instance,
                               update_execution_status,
