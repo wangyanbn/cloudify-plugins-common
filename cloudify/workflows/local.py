@@ -455,7 +455,7 @@ class FileStorage(_Storage):
         os.mkdir(instances_dir)
         os.mkdir(workdir)
         with open(payload_path, 'w') as f:
-            f.write(json.dumps({}))
+            f.write(json.dumps({}, encoding='utf-8'))
 
         blueprint_filename = os.path.basename(os.path.abspath(blueprint_path))
         with open(data_path, 'w') as f:
@@ -464,7 +464,7 @@ class FileStorage(_Storage):
                 'blueprint_filename': blueprint_filename,
                 'nodes': nodes,
                 'provider_context': provider_context or {}
-            }))
+            }, encoding='utf-8'))
         resources_root = os.path.dirname(os.path.abspath(blueprint_path))
         self.resources_root = os.path.join(storage_dir, 'resources')
 
@@ -500,7 +500,7 @@ class FileStorage(_Storage):
             payload = json.load(f)
             yield payload
         with open(self._payload_path, 'w') as f:
-            json.dump(payload, f, indent=2)
+            json.dump(payload, f, indent=2, encoding='utf-8')
             f.write(os.linesep)
 
     def get_blueprint_path(self):
@@ -521,7 +521,7 @@ class FileStorage(_Storage):
             instance_lock.acquire()
         try:
             with open(self._instance_path(node_instance.id), 'w') as f:
-                f.write(json.dumps(node_instance))
+                f.write(json.dumps(node_instance, encoding='utf-8'))
         finally:
             if lock and instance_lock:
                 instance_lock.release()

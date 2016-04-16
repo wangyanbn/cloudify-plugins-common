@@ -79,7 +79,7 @@ class AMQPClient(object):
         else:
             routing_key = self.LOGS_QUEUE_NAME
         exchange = ''
-        body = json.dumps(message)
+        body = json.dumps(message, encoding='utf-8')
         try:
             self.channel.basic_publish(exchange=exchange,
                                        routing_key=routing_key,
