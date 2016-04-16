@@ -153,8 +153,19 @@ class ZMQLoggingServer(object):
         while not self.closed:
             try:
                 if self.poller.poll(1000):
-                    message = json.loads(self.socket.recv(), encoding='utf-8')
-                    self._process(message)
+                    raw_message = self.socket.recv()
+                    try:
+                        message = json.loads(raw_message, encoding='utf-8')
+                        self._process(message)
+                    except Exception as e:
+                        err_msg = 'logging server failed to load json from ' \
+                                  'message: {0}, exception: {1}'.\
+                            format(raw_message, e)
+                        with open('/tmp/logging_server.log', 'a') as file_log:
+                            file_log.write('{0}\n'.format(err_msg))
+                        if not self.closed:
+                            logger.warning('Error raised during record '
+                                           'processing', exc_info=True)
             except Exception:
                 if not self.closed:
                     logger.warning('Error raised during record processing',
