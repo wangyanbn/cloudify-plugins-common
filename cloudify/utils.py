@@ -153,21 +153,21 @@ def get_manager_rest_service_host():
     """
     Returns the host the manager REST service is running on.
     """
-    return os.environ[constants.MANAGER_REST_HOST_KEY]
+    return os.environ[constants.REST_HOST_KEY]
 
 
 def get_manager_rest_service_port():
     """
     Returns the port the manager REST service is running on.
     """
-    return int(os.environ[constants.MANAGER_REST_PORT_KEY])
+    return int(os.environ[constants.REST_PORT_KEY])
 
 
 def get_manager_rest_service_protocol():
     """
     Returns the protocol the manager REST service is running on.
     """
-    return os.environ[constants.MANAGER_REST_PROTOCOL_KEY]
+    return os.environ[constants.REST_PROTOCOL_KEY]
 
 
 def is_verify_ssl_certificate():

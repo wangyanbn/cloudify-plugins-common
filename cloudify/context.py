@@ -300,8 +300,8 @@ class SecurityContext(object):
         else:
             self._security_context = {
                 'security_enabled': False,
-                'manager_port': '80',
-                'manager_protocol': 'http',
+                'rest_port': '80',
+                'rest_protocol': 'http',
                 'cloudify_username': '',
                 'cloudify_password': '',
                 'verify_ssl_certificate': False,
@@ -316,14 +316,14 @@ class SecurityContext(object):
         return self._security_context.get('security_enabled')
 
     @property
-    def manager_port(self):
+    def rest_port(self):
         """The port of the cloudify's REST server"""
-        return self._security_context.get('manager_port')
+        return self._security_context.get('rest_port')
 
     @property
-    def manager_protocol(self):
+    def rest_protocol(self):
         """The protocol of the cloudify's REST server"""
-        return self._security_context.get('manager_protocol')
+        return self._security_context.get('rest_protocol')
 
     @property
     def cloudify_username(self):
