@@ -139,7 +139,7 @@ def get_internal_manager_host():
     Returns the IP or hostname through which internal components reach
     the manager.
     """
-    return os.environ[constants.MANAGER_INTERNAL_HOST_KEY]
+    return os.environ[constants.INTERNAL_MANAGER_HOST_KEY]
 
 
 def is_security_enabled():
