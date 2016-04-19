@@ -163,9 +163,6 @@ class ZMQLoggingServer(object):
                             format(raw_message, e)
                         with open('/tmp/logging_server.log', 'a') as file_log:
                             file_log.write('{0}\n'.format(err_msg))
-                        if not self.closed:
-                            logger.warning('Error raised during record '
-                                           'processing', exc_info=True)
             except Exception:
                 if not self.closed:
                     logger.warning('Error raised during record processing',
