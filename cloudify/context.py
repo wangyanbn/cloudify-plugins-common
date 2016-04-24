@@ -207,6 +207,21 @@ class BootstrapContext(object):
             """
             return self._cloudify_agent.get('broker_ssl_cert')
 
+        @property
+        def verify_manager_certificate(self):
+            """
+            Returns true if agent requests to the manager should verify its
+            SSL certificate
+            """
+            return self._cloudify_agent.get('verify_manager_certificate')
+
+        @property
+        def add_manager_ssl_certs_to_ca_path(self):
+            """
+            Returns true if the manager's ssl certs should be copied to the agent
+            """
+            return self._cloudify_agent.get('add_manager_ssl_certs_to_ca_path')
+
     def __init__(self, bootstrap_context):
         self._bootstrap_context = bootstrap_context
 
@@ -529,6 +544,12 @@ class RelationshipSubjectContext(object):
 
 
 class CloudifyContext(CommonContext):
+
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as disp_log:
+            disp_log.write('***** {0}\n'.format(message))
+
     """
     A context object passed to plugins tasks invocations.
     The context object is used in plugins when interacting with
@@ -762,6 +783,7 @@ class CloudifyContext(CommonContext):
 
         :rtype: BootstrapContext
         """
+        self._log_to_file('getting bootstrap context from CloudifyContext')
         if self._bootstrap_context is None:
             context = self._endpoint.get_bootstrap_context()
             self._bootstrap_context = BootstrapContext(context)

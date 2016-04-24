@@ -178,13 +178,18 @@ def is_verify_ssl_certificate():
     return os.environ[constants.VERIFY_CERTIFICATE_KEY]
 
 
-def get_local_certificate_path():
+def get_local_rest_certificate():
     """
-    Returns the path to the local (client) copy of the server's
-    public certificate
+    Returns the path to the local copy of the server's public certificate
     """
-    return os.environ.get(constants.LOCAL_CERTIFICATE_PATH_KEY,
-                          constants.DEFAULT_SSL_CERT_PATH)
+    return os.environ.get(constants.LOCAL_REST_CERT_FILE_KEY)
+
+
+def get_rest_cert_content():
+    """
+    Returns the content of the REST SSL certificate
+    """
+    return os.environ.get(constants.REST_CERT_CONTENT_KEY)
 
 
 def get_cloudify_username():

@@ -409,6 +409,11 @@ class CloudifyWorkflowNode(object):
 
 class _WorkflowContextBase(object):
 
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as disp_log:
+            disp_log.write('***** {0}\n'.format(message))
+
     def __init__(self, ctx, remote_ctx_handler_cls):
         self._context = ctx = ctx or {}
         self._security_context = self._context.get('security_context', {})
@@ -417,25 +422,36 @@ class _WorkflowContextBase(object):
         with open('/tmp/wf1.log', 'a') as wf_log:
             wf_log.write('self._security_context: {0}, type: {1}\n'.format(
                 self._security_context, type(self._security_context)))
+
+        self._log_to_file('debug01')
         self._local_task_thread_pool_size = ctx.get(
             'local_task_thread_pool_size',
             DEFAULT_LOCAL_TASK_THREAD_POOL_SIZE)
-
+        self._log_to_file('debug02')
         self._task_retry_interval = ctx.get('task_retry_interval',
                                             DEFAULT_RETRY_INTERVAL)
+        self._log_to_file('debug03')
         self._task_retries = ctx.get('task_retries',
                                      DEFAULT_TOTAL_RETRIES)
+        self._log_to_file('debug04')
         self._subgraph_retries = ctx.get('subgraph_retries',
                                          DEFAULT_SUBGRAPH_TOTAL_RETRIES)
+        self._log_to_file('debug05')
         self._logger = None
 
         if self.local:
+            self._log_to_file('debug06 local')
             storage = ctx.pop('storage')
             handler = LocalCloudifyWorkflowContextHandler(self, storage)
+            self._log_to_file('debug07 local')
         else:
+            self._log_to_file('debug06 remote')
             handler = remote_ctx_handler_cls(self)
+            self._log_to_file('debug07 remote')
 
+        self._log_to_file('debug08')
         self._internal = CloudifyWorkflowContextInternal(self, handler)
+        self._log_to_file('debug09')
 
     def graph_mode(self):
         """
@@ -452,6 +468,7 @@ class _WorkflowContextBase(object):
 
     @property
     def bootstrap_context(self):
+        self._log_to_file('getting bootstrap context from _WorkflowContextBase')
         return self.internal._bootstrap_context
 
     @property
@@ -824,13 +841,21 @@ class CloudifyWorkflowContext(
     :param ctx: a cloudify_context workflow dict
     """
 
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as disp_log:
+            disp_log.write('***** {0}\n'.format(message))
+
     def __init__(self, ctx):
+        self._log_to_file('starting CloudifyWorkflowContext.init')
         # Not using super() here, because WorkflowNodesAndInstancesContainer's
         # __init__() needs some data to be prepared before calling it. It would
         # be possible to overcome this by using kwargs + super(...).__init__()
         # in _WorkflowContextBase, but the way it is now is self-explanatory.
+        self._log_to_file('calling _WorkflowContextBase.__init__')
         _WorkflowContextBase.__init__(self, ctx,
                                       RemoteCloudifyWorkflowContextHandler)
+        self._log_to_file('_WorkflowContextBase.__init__ completed')
 
         self.blueprint = context.BlueprintContext(self._context)
         self.deployment = WorkflowDeploymentContext(self._context, self)
@@ -907,18 +932,27 @@ class CloudifySystemWideWorkflowContext(_WorkflowContextBase):
 
 
 class CloudifyWorkflowContextInternal(object):
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as file_log:
+            file_log.write('***** {0}\n'.format(message))
 
     def __init__(self, workflow_context, handler):
+        self._log_to_file('starting CloudifyWorkflowContextInternal.init')
         self.workflow_context = workflow_context
+        self._log_to_file('debug10')
         self.handler = handler
         self._bootstrap_context = None
         self._graph_mode = False
         # the graph is always created internally for events to work properly
         # when graph mode is turned on this instance is returned to the user.
+        self._log_to_file('debug11')
         subgraph_task_config = self.get_subgraph_task_configuration()
+        self._log_to_file('debug12')
         self._task_graph = TaskDependencyGraph(
             workflow_context=workflow_context,
             default_subgraph_task_config=subgraph_task_config)
+        self._log_to_file('debug13')
 
         # events related
         self._event_monitor = None
@@ -926,9 +960,11 @@ class CloudifyWorkflowContextInternal(object):
 
         # local task processing
         thread_pool_size = self.workflow_context._local_task_thread_pool_size
+        self._log_to_file('debug14')
         self.local_tasks_processor = LocalTasksProcessing(
             is_local_context=self.workflow_context.local,
             thread_pool_size=thread_pool_size)
+        self._log_to_file('debug15')
 
     def get_task_configuration(self):
         bootstrap_context = self._get_bootstrap_context()
@@ -943,7 +979,9 @@ class CloudifyWorkflowContextInternal(object):
                     retry_interval=retry_interval)
 
     def get_subgraph_task_configuration(self):
+        self._log_to_file('starting get_subgraph_task_configuration, getting bootstrap context...')
         bootstrap_context = self._get_bootstrap_context()
+        self._log_to_file('got bootstrap context')
         workflows = bootstrap_context.get('workflows', {})
         subgraph_retries = workflows.get(
             'subgraph_retries',
@@ -953,6 +991,7 @@ class CloudifyWorkflowContextInternal(object):
 
     def _get_bootstrap_context(self):
         if self._bootstrap_context is None:
+            self._log_to_file('calling self.handler.bootstrap_context... on handler: {0}'.format(self.handler))
             self._bootstrap_context = self.handler.bootstrap_context
         return self._bootstrap_context
 
@@ -1115,8 +1154,14 @@ class CloudifyWorkflowContextHandler(object):
 
 class RemoteContextHandler(CloudifyWorkflowContextHandler):
 
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as disp_log:
+            disp_log.write('***** {0}\n'.format(message))
+
     @property
     def bootstrap_context(self):
+        self._log_to_file('getting bootstrap context from RemoteContextHandler')
         return get_bootstrap_context()
 
     def get_send_task_event_func(self, task):
@@ -1297,6 +1342,11 @@ class SystemWideWfRemoteContextHandler(RemoteContextHandler):
 
 class LocalCloudifyWorkflowContextHandler(CloudifyWorkflowContextHandler):
 
+    @staticmethod
+    def _log_to_file(message):
+        with open('/tmp/dispatcher.log', 'a') as disp_log:
+            disp_log.write('***** {0}\n'.format(message))
+
     def __init__(self, workflow_ctx, storage):
         super(LocalCloudifyWorkflowContextHandler, self).__init__(
             workflow_ctx)
@@ -1313,6 +1363,7 @@ class LocalCloudifyWorkflowContextHandler(CloudifyWorkflowContextHandler):
 
     @property
     def bootstrap_context(self):
+        self._log_to_file('getting dummy bootstrap context from LocalCloudifyWorkflowContextHandler')
         return {}
 
     def get_send_task_event_func(self, task):

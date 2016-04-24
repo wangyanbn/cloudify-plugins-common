@@ -118,23 +118,41 @@ def get_rest_client():
     rest_protocol = constants.DEFAULT_PROTOCOL
 
     if not utils.is_security_enabled():
+        _log_to_file('creating CloudifyClient with host: {0}, port: {1}, protocol: {2}'.
+                     format(rest_host, rest_port, rest_protocol))
         rest_client = CloudifyClient(rest_host, rest_port, rest_protocol)
     else:
         # security enabled
+        _log_to_file('security is enabled')
         headers = utils.get_auth_header(utils.get_cloudify_username(),
                                         utils.get_cloudify_password())
         rest_port = utils.get_manager_rest_service_port()
-        protocol = utils.get_manager_rest_service_protocol()
+        _log_to_file('rest_port env var is: {0}'.format(os.environ[constants.REST_PORT_KEY]))
+        # is somehow http
+        rest_protocol = utils.get_manager_rest_service_protocol()
+        _log_to_file('rest_protocol env var is: {0}'.format(os.environ[constants.REST_PROTOCOL_KEY]))
 
         if utils.is_verify_ssl_certificate().lower() == 'false':
+            _log_to_file('verify ssl cert is False')
             trust_all = True
             cert_path = None
         else:
+            _log_to_file('verify ssl cert is True')
             trust_all = False
-            cert_path = utils.get_local_certificate_path()
+            # is somehow /root/cloudify/server.crt
+            if constants.LOCAL_REST_CERT_FILE_KEY in os.environ:
+                _log_to_file('LOCAL_REST_CERT_FILE_KEY env var is: {0}'.
+                             format(os.environ[constants.LOCAL_REST_CERT_FILE_KEY]))
+            else:
+                _log_to_file('LOCAL_REST_CERT_FILE_KEY env var is MISSING')
+            cert_path = utils.get_local_rest_certificate()
 
+        _log_to_file('creating CloudifyClient with host: {0}, port: {1}, '
+                     'protocol: {2}, headers: {3}, cert: {4}, trust_all: {5}'.
+                     format(rest_host, rest_port, rest_protocol, headers,
+                            cert_path, trust_all))
         rest_client = CloudifyClient(host=rest_host, port=rest_port,
-                                     protocol=protocol, headers=headers,
+                                     protocol=rest_protocol, headers=headers,
                                      cert=cert_path, trust_all=trust_all)
 
     return rest_client
@@ -325,10 +343,22 @@ def update_execution_status(execution_id, status, error=None):
     return client.executions.update(execution_id, status, error)
 
 
+def _log_to_file(message):
+    with open('/tmp/dispatcher.log', 'a') as disp_log:
+        disp_log.write('***** {0}\n'.format(message))
+
+
 def get_bootstrap_context():
     """Read the manager bootstrap context."""
+    _log_to_file('starting manager.py.get_bootstrap_context')
+    _log_to_file('getting rest client...')
     client = get_rest_client()
+    _log_to_file('got rest client')
+    _log_to_file('client.manager is: {0}'.format(client.manager))
+    _log_to_file('client.manager.get_context() is: {0}'.format(client.manager.get_context()))
+    _log_to_file('getting context from rest client...')
     context = client.manager.get_context()['context']
+    _log_to_file('got content from client, returning')
     return context.get('cloudify', {})
 
 

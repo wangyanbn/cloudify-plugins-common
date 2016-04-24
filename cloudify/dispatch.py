@@ -93,9 +93,12 @@ class TaskHandler(object):
         self._fallback_handler = None
 
     def handle_or_dispatch_to_subprocess_if_remote(self):
+        _log_to_tmp('starting handle_or_dispatch_to_subprocess_if_remote')
         if self.cloudify_context.get('task_target'):
+            _log_to_tmp('calling dispatch_to_subprocess')
             return self.dispatch_to_subprocess()
         else:
+            _log_to_tmp('calling self.handle()')
             return self.handle()
 
     def handle(self):
@@ -104,26 +107,24 @@ class TaskHandler(object):
     def dispatch_to_subprocess(self):
         # inputs.json, output.json and output are written to a temporary
         # directory that only lives during the lifetime of the subprocess
+        _log_to_tmp('starting dispatch_to_subprocess')
         split = self.cloudify_context['task_name'].split('.')
         dispatch_dir = tempfile.mkdtemp(prefix='task-{0}.{1}-'.format(
             split[0], split[-1]))
-
+        _log_to_tmp('dispatch_dir: {0}'.format(dispatch_dir))
         # stdout/stderr are redirected to output. output is only displayed
         # in case something really bad happened. in the general case, output
         # that users want to see in log files, should go through the different
         # loggers
         output = open(os.path.join(dispatch_dir, 'output'), 'w')
         try:
-            with open('/tmp/dispatch.log', 'a') as dispatch_log:
-                dispatch_log.write('type(self.cloudify_context): {0}\n'.
-                                   format(type(self.cloudify_context)))
-                dispatch_log.write(
-                    'type(self.cloudify_context[security_context]): {0}\n'.
-                    format(type(self.cloudify_context['security_context'])))
-                dispatch_log.write('self.cloudify_context: {0}\n'.
-                                   format(self.cloudify_context))
-                dispatch_log.write('self.args: {0}\n'.format(self.args))
-                dispatch_log.write('self.kwargs: {0}\n'.format(self.kwargs))
+            _log_to_tmp('type(self.cloudify_context): {0}'.
+                        format(type(self.cloudify_context)))
+            _log_to_tmp('type(self.cloudify_context[security_context]): {0}'.
+                        format(type(self.cloudify_context['security_context'])))
+            _log_to_tmp('self.cloudify_context: {0}'.format(self.cloudify_context))
+            _log_to_tmp('self.args: {0}\n'.format(self.args))
+            _log_to_tmp('self.kwargs: {0}\n'.format(self.kwargs))
             with open(os.path.join(dispatch_dir, 'input.json'), 'w') as f:
                 json.dump({
                     'cloudify_context': self.cloudify_context,
@@ -132,25 +133,54 @@ class TaskHandler(object):
                     'args': self.args,
                     'kwargs': self.kwargs
                 }, f)
+            _log_to_tmp('calling _build_subprocess_env...')
             env = self._build_subprocess_env()
+            _log_to_tmp('_build_subprocess_env completed, env is: {0}'.format(env))
             command_args = [sys.executable, __file__, dispatch_dir]
+            _log_to_tmp('command_args: {0}'.format(command_args))
+            dispatch_dir_exists = os.path.isdir(dispatch_dir)
+            _log_to_tmp('dispatch_dir_exists: {0}'.format(dispatch_dir_exists))
+            if dispatch_dir_exists:
+                _log_to_tmp('os.listdir(dispatch_dir): {0}'.format(os.listdir(dispatch_dir)))
+                with open(os.path.join(dispatch_dir, 'input.json'), 'r') as in_file:
+                    input_json_content = in_file.read()
+            _log_to_tmp('input.json content: {0}'.format(input_json_content))
+
             try:
+                _log_to_tmp('calling subprocess.check_call...')
                 subprocess.check_call(command_args,
                                       env=env,
                                       bufsize=1,
                                       close_fds=os.name != 'nt',
                                       stdout=output,
                                       stderr=output)
-            except subprocess.CalledProcessError:
+                _log_to_tmp('subprocess.check_call completed')
+            except subprocess.CalledProcessError as cpe:
+                _log_to_tmp('subprocess.check_call failed, CalledProcessError caught: {0}'.format(cpe))
                 # this means something really bad happened because we generally
                 # catch all exceptions in the subprocess and exit cleanly
                 # regardless.
+                _log_to_tmp('closing output file...')
                 output.close()
+                _log_to_tmp('output file closed')
+                dispatch_dir_exists = os.path.isdir(dispatch_dir)
+                _log_to_tmp('dispatch_dir_exists: {0}'.format(dispatch_dir_exists))
+                if dispatch_dir_exists:
+                    _log_to_tmp('os.listdir(dispatch_dir): {0}'.format(os.listdir(dispatch_dir)))
+                _log_to_tmp('reading output file content...')
+                with open(os.path.join(dispatch_dir, 'output')) as out_file:
+                    output_content = out_file.read()
+                    _log_to_tmp('output content: {0}'.format(output_content))
                 with open(os.path.join(dispatch_dir, 'output')) as f:
                     read_output = f.read()
                 raise exceptions.NonRecoverableError(
                     'Unhandled exception occurred in operation dispatch: '
                     '{0}'.format(read_output))
+            except Exception as e:
+                _log_to_tmp('subprocess.check_call failed, exception caught: {0}'.format(e))
+                with open(os.path.join(dispatch_dir, 'output.json')) as out_file:
+                    output_content = out_file.read()
+                _log_to_tmp('output content: {0}'.format(output_content))
             with open(os.path.join(dispatch_dir, 'output.json')) as f:
                 dispatch_output = json.load(f)
             if dispatch_output['type'] == 'result':
@@ -256,21 +286,38 @@ class TaskHandler(object):
                                             sys_prefix_fallback=False)
 
     def setup_logging(self):
+
+        def _local_log_to_tmp(message):
+            with open('/tmp/dispatcher.log', 'a') as log_file:
+                log_file.write('***** {0}\n\n'.format(message))
+
+        _local_log_to_tmp('starting setup_logging')
         socket_url = self.cloudify_context.get('socket_url')
         if socket_url:
+            _local_log_to_tmp('socket_url found: {0}'.format(socket_url))
             import zmq
             self._zmq_context = zmq.Context(io_threads=1)
             self._zmq_socket = self._zmq_context.socket(zmq.PUSH)
             self._zmq_socket.connect(socket_url)
             try:
+                _local_log_to_tmp('creating handler_context...')
+                _local_log_to_tmp('self.ctx: {0}'.format(self.ctx))
+                _local_log_to_tmp('self.ctx.deployment: {0}'.format(self.ctx.deployment))
                 handler_context = self.ctx.deployment.id
+                _local_log_to_tmp('handler_context is: {0}'.format(handler_context))
             except AttributeError:
+                _local_log_to_tmp('caught AttributeError')
                 handler_context = SYSTEM_DEPLOYMENT
+            except Exception as e:
+                _local_log_to_tmp('caught exception: {0}'.format(e))
+                raise e
             else:
                 # an operation may originate from a system wide workflow.
                 # in that case, the deployment id will be None
                 handler_context = handler_context or SYSTEM_DEPLOYMENT
+            _local_log_to_tmp('creating fallback logger...')
             fallback_logger = self._create_fallback_logger(handler_context)
+            _local_log_to_tmp('fallback logger created')
             handler = logs.ZMQLoggingHandler(context=handler_context,
                                              socket=self._zmq_socket,
                                              fallback_logger=fallback_logger)
@@ -388,9 +435,13 @@ class OperationHandler(TaskHandler):
 class WorkflowHandler(TaskHandler):
     @property
     def ctx_cls(self):
-        if getattr(self.func, 'workflow_system_wide', False):
-            return workflow_context.CloudifySystemWideWorkflowContext
-        return workflow_context.CloudifyWorkflowContext
+        with open('/tmp/dispatcher.log', 'a') as dispather_log:
+            dispather_log.write('starting WorkflowsHandler.ctx_cls\n')
+            if getattr(self.func, 'workflow_system_wide', False):
+                dispather_log.write('***** calling workflow_context.CloudifySystemWideWorkflowContext... \n')
+                return workflow_context.CloudifySystemWideWorkflowContext
+            dispather_log.write('***** calling workflow_context.CloudifyWorkflowContext... \n')
+            return workflow_context.CloudifyWorkflowContext
 
     def handle(self):
         if not self.func:
@@ -574,18 +625,29 @@ TASK_HANDLERS = {
 
 @task
 def dispatch(__cloudify_context, *args, **kwargs):
+    _log_to_tmp('starting dispatch...')
     dispatch_type = __cloudify_context['type']
+    _log_to_tmp('dispatch_type: {0}'.format(dispatch_type))
     dispatch_handler_cls = TASK_HANDLERS.get(dispatch_type)
+    _log_to_tmp('dispatch_handler_cls: {0}'.format(dispatch_handler_cls))
     if not dispatch_handler_cls:
+        _log_to_tmp('No handler for task type: {0}'.format(dispatch_type))
         raise exceptions.NonRecoverableError('No handler for task type: {0}'
                                              .format(dispatch_type))
     handler = dispatch_handler_cls(cloudify_context=__cloudify_context,
                                    args=args,
                                    kwargs=kwargs)
+    _log_to_tmp('calling handler.handle_or_dispatch_to_subprocess_if_remote')
     return handler.handle_or_dispatch_to_subprocess_if_remote()
 
 
 def main():
+
+    def _local_log_to_tmp(message):
+        with open('/tmp/dispatcher.log', 'a') as log_file:
+            log_file.write('***** {0}\n\n'.format(message))
+
+    _local_log_to_tmp('starting main...')
     dispatch_dir = sys.argv[1]
     with open(os.path.join(dispatch_dir, 'input.json')) as f:
         dispatch_inputs = json.load(f)
@@ -597,14 +659,20 @@ def main():
     handler_cls = TASK_HANDLERS[dispatch_type]
     handler = None
     try:
+        _local_log_to_tmp('creating instance of handler_cls...')
         handler = handler_cls(cloudify_context=cloudify_context,
                               args=args,
                               kwargs=kwargs)
+        _local_log_to_tmp('handler_cls created')
+        _local_log_to_tmp('calling setup_logging...')
         handler.setup_logging()
+        _local_log_to_tmp('setup_logging completed')
+        _local_log_to_tmp('calling handler.handle()...')
         payload = handler.handle()
+        _local_log_to_tmp('handler.handle() completed')
         payload_type = 'result'
     except BaseException as e:
-
+        _local_log_to_tmp('exception caught: {0}'.format(e))
         tb = StringIO.StringIO()
         traceback.print_exc(file=tb)
         trace_out = tb.getvalue()
@@ -661,3 +729,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def _log_to_tmp(message):
+    with open('/tmp/dispatcher.log', 'a') as log_file:
+        log_file.write('***** {0}\n\n'.format(message))
