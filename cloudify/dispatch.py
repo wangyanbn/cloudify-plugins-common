@@ -200,6 +200,9 @@ class TaskHandler(object):
                     'type': exception_type,
                     'traceback': tb
                 })
+                _log_to_tmp('workflow execution failed, caused by:')
+                for cause in causes:
+                    _log_to_tmp(cause)
                 known_exception_type_kwargs['causes'] = causes
 
                 known_exception_type = getattr(exceptions,

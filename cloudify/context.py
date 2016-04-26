@@ -319,7 +319,7 @@ class SecurityContext(object):
                 'rest_protocol': 'http',
                 'cloudify_username': '',
                 'cloudify_password': '',
-                'verify_ssl_certificate': False,
+                'verify_manager_certificate': False,
             }
 
     def to_dict(self):
@@ -351,9 +351,10 @@ class SecurityContext(object):
         return self._security_context.get('cloudify_password')
 
     @property
-    def verify_ssl_certificate(self):
-        """True if SSL certificate should be verified, False otherwise"""
-        return self._security_context.get('verify_ssl_certificate')
+    def verify_manager_certificate(self):
+        """True if the REST's SSL certificate should be verified,
+        False otherwise"""
+        return self._security_context.get('verify_manager_certificate')
 
 
 class NodeContext(EntityContext):
