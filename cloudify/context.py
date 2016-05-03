@@ -256,13 +256,14 @@ class BootstrapContext(object):
         """
         return self._bootstrap_context.get('resources_prefix', '')
 
-    def broker_config(self, fallback_to_manager_ip=True):
+    def broker_config(self, fallback_to_internal_manager_host=True):
         """
         Returns dictionary containing broker configuration.
 
-        :param fallback_to_manager_ip: If True and there is no broker_ip in
-        context, manager ip will be used. Note that manager ip detection is
-        only possible within agent.
+        :param fallback_to_internal_manager_host: If True and there is no
+        broker_ip in context, the internal_manager_host will be used.
+         # TODO: what does the next line mean?
+        Note that manager ip detection is only possible within agent.
         """
         attributes = {}
         bootstrap_agent = self.cloudify_agent
@@ -271,7 +272,7 @@ class BootstrapContext(object):
         )
         if bootstrap_agent.broker_ip:
             attributes['broker_ip'] = bootstrap_agent.broker_ip
-        elif fallback_to_manager_ip:
+        elif fallback_to_internal_manager_host:
             attributes['broker_ip'] = utils.get_internal_manager_host()
         attributes['broker_user'] = broker_user
         attributes['broker_pass'] = broker_pass
