@@ -172,12 +172,12 @@ class BootstrapContext(object):
             return self._cloudify_agent.get('agent_key_path')
 
         @property
-        def broker_ip(self):
+        def broker_host(self):
             """
-            Returns the IP for connecting to rabbit.
+            Returns the host name or IP of the rabbit server.
             An empty string should result in clients using the manager IP.
             """
-            return self._cloudify_agent.get('broker_ip')
+            return self._cloudify_agent.get('broker_host')
 
         @property
         def broker_user(self):
@@ -256,24 +256,16 @@ class BootstrapContext(object):
         """
         return self._bootstrap_context.get('resources_prefix', '')
 
-    def broker_config(self, fallback_to_internal_manager_host=True):
+    def broker_config(self):
         """
         Returns dictionary containing broker configuration.
-
-        :param fallback_to_internal_manager_host: If True and there is no
-        broker_ip in context, the internal_manager_host will be used.
-         # TODO: what does the next line mean?
-        Note that manager ip detection is only possible within agent.
         """
         attributes = {}
         bootstrap_agent = self.cloudify_agent
         broker_user, broker_pass = utils.internal.get_broker_credentials(
             bootstrap_agent
         )
-        if bootstrap_agent.broker_ip:
-            attributes['broker_ip'] = bootstrap_agent.broker_ip
-        elif fallback_to_internal_manager_host:
-            attributes['broker_ip'] = utils.get_internal_manager_host()
+        attributes['broker_host'] = bootstrap_agent.broker_host
         attributes['broker_user'] = broker_user
         attributes['broker_pass'] = broker_pass
         attributes['broker_ssl_enabled'] = bootstrap_agent.broker_ssl_enabled

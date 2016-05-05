@@ -38,6 +38,7 @@ class AMQPClient(object):
         'exclusive': False
     }
 
+    # TODO amqp_host should not have a default val, so it must be the 1st arg
     def __init__(self,
                  amqp_user='guest',
                  amqp_pass='guest',
@@ -47,8 +48,6 @@ class AMQPClient(object):
         self.connection = None
         self.channel = None
         self._is_closed = False
-        if amqp_host is None:
-            amqp_host = utils.get_internal_manager_host()
         credentials = pika.credentials.PlainCredentials(
             username=amqp_user,
             password=amqp_pass)

@@ -134,14 +134,6 @@ def get_manager_file_server_url():
     return os.environ[constants.MANAGER_FILE_SERVER_URL_KEY]
 
 
-def get_internal_manager_host():
-    """
-    Returns the IP or hostname through which internal components reach
-    the manager.
-    """
-    return os.environ[constants.INTERNAL_MANAGER_HOST_KEY]
-
-
 def is_security_enabled():
     """
     Returns True if REST security is enabled, False otherwise
