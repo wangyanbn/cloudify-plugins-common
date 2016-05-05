@@ -468,7 +468,8 @@ class _WorkflowContextBase(object):
 
     @property
     def bootstrap_context(self):
-        self._log_to_file('getting bootstrap context from _WorkflowContextBase')
+        self._log_to_file('getting bootstrap context from '
+                          '_WorkflowContextBase')
         return self.internal._bootstrap_context
 
     @property
@@ -979,7 +980,8 @@ class CloudifyWorkflowContextInternal(object):
                     retry_interval=retry_interval)
 
     def get_subgraph_task_configuration(self):
-        self._log_to_file('starting get_subgraph_task_configuration, getting bootstrap context...')
+        self._log_to_file('starting get_subgraph_task_configuration, getting '
+                          'bootstrap context...')
         bootstrap_context = self._get_bootstrap_context()
         self._log_to_file('got bootstrap context')
         workflows = bootstrap_context.get('workflows', {})
@@ -991,7 +993,8 @@ class CloudifyWorkflowContextInternal(object):
 
     def _get_bootstrap_context(self):
         if self._bootstrap_context is None:
-            self._log_to_file('calling self.handler.bootstrap_context... on handler: {0}'.format(self.handler))
+            self._log_to_file('calling self.handler.bootstrap_context... '
+                              'on handler: {0}'.format(self.handler))
             self._bootstrap_context = self.handler.bootstrap_context
         return self._bootstrap_context
 
@@ -1161,7 +1164,8 @@ class RemoteContextHandler(CloudifyWorkflowContextHandler):
 
     @property
     def bootstrap_context(self):
-        self._log_to_file('getting bootstrap context from RemoteContextHandler')
+        self._log_to_file('getting bootstrap context from '
+                          'RemoteContextHandler')
         return get_bootstrap_context()
 
     def get_send_task_event_func(self, task):
@@ -1363,7 +1367,8 @@ class LocalCloudifyWorkflowContextHandler(CloudifyWorkflowContextHandler):
 
     @property
     def bootstrap_context(self):
-        self._log_to_file('getting dummy bootstrap context from LocalCloudifyWorkflowContextHandler')
+        self._log_to_file('getting dummy bootstrap context from '
+                          'LocalCloudifyWorkflowContextHandler')
         return {}
 
     def get_send_task_event_func(self, task):

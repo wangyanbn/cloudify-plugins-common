@@ -218,7 +218,8 @@ class BootstrapContext(object):
         @property
         def add_manager_ssl_certs_to_ca_path(self):
             """
-            Returns true if the manager's ssl certs should be copied to the agent
+            Returns true if the manager's ssl certs should be copied to
+            host agent machines
             """
             return self._cloudify_agent.get('add_manager_ssl_certs_to_ca_path')
 

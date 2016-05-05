@@ -118,7 +118,8 @@ def get_rest_client():
     rest_protocol = constants.DEFAULT_PROTOCOL
 
     if not utils.is_security_enabled():
-        _log_to_file('creating CloudifyClient with host: {0}, port: {1}, protocol: {2}'.
+        _log_to_file('creating CloudifyClient with host: {0}, port: {1}, '
+                     'protocol: {2}'.
                      format(rest_host, rest_port, rest_protocol))
         rest_client = CloudifyClient(rest_host, rest_port, rest_protocol)
     else:
@@ -127,10 +128,12 @@ def get_rest_client():
         headers = utils.get_auth_header(utils.get_cloudify_username(),
                                         utils.get_cloudify_password())
         rest_port = utils.get_manager_rest_service_port()
-        _log_to_file('rest_port env var is: {0}'.format(os.environ[constants.REST_PORT_KEY]))
+        _log_to_file('rest_port env var is: {0}'.
+                     format(os.environ[constants.REST_PORT_KEY]))
         # is somehow http
         rest_protocol = utils.get_manager_rest_service_protocol()
-        _log_to_file('rest_protocol env var is: {0}'.format(os.environ[constants.REST_PROTOCOL_KEY]))
+        _log_to_file('rest_protocol env var is: {0}'.
+                     format(os.environ[constants.REST_PROTOCOL_KEY]))
 
         if utils.is_verify_ssl_certificate().lower() == 'false':
             _log_to_file('verify ssl cert is False')
@@ -141,8 +144,8 @@ def get_rest_client():
             trust_all = False
             # is somehow /root/cloudify/server.crt
             if constants.LOCAL_REST_CERT_FILE_KEY in os.environ:
-                _log_to_file('LOCAL_REST_CERT_FILE_KEY env var is: {0}'.
-                             format(os.environ[constants.LOCAL_REST_CERT_FILE_KEY]))
+                _log_to_file('LOCAL_REST_CERT_FILE_KEY env var is: {0}'.format(
+                    os.environ[constants.LOCAL_REST_CERT_FILE_KEY]))
             else:
                 _log_to_file('LOCAL_REST_CERT_FILE_KEY env var is MISSING')
             cert_path = utils.get_local_rest_certificate()
@@ -355,7 +358,8 @@ def get_bootstrap_context():
     client = get_rest_client()
     _log_to_file('got rest client')
     _log_to_file('client.manager is: {0}'.format(client.manager))
-    _log_to_file('client.manager.get_context() is: {0}'.format(client.manager.get_context()))
+    _log_to_file('client.manager.get_context() is: {0}'.
+                 format(client.manager.get_context()))
     _log_to_file('getting context from rest client...')
     context = client.manager.get_context()['context']
     _log_to_file('got content from client, returning')

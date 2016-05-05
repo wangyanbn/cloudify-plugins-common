@@ -120,9 +120,11 @@ class TaskHandler(object):
         try:
             _log_to_tmp('type(self.cloudify_context): {0}'.
                         format(type(self.cloudify_context)))
-            _log_to_tmp('type(self.cloudify_context[security_context]): {0}'.
-                        format(type(self.cloudify_context['security_context'])))
-            _log_to_tmp('self.cloudify_context: {0}'.format(self.cloudify_context))
+            _log_to_tmp('type(self.cloudify_context[security_context]): '
+                        '{0}'.format(type(
+                                self.cloudify_context['security_context'])))
+            _log_to_tmp('self.cloudify_context: {0}'.
+                        format(self.cloudify_context))
             _log_to_tmp('self.args: {0}\n'.format(self.args))
             _log_to_tmp('self.kwargs: {0}\n'.format(self.kwargs))
             with open(os.path.join(dispatch_dir, 'input.json'), 'w') as f:
@@ -135,14 +137,17 @@ class TaskHandler(object):
                 }, f)
             _log_to_tmp('calling _build_subprocess_env...')
             env = self._build_subprocess_env()
-            _log_to_tmp('_build_subprocess_env completed, env is: {0}'.format(env))
+            _log_to_tmp('_build_subprocess_env completed, env is: {0}'.
+                        format(env))
             command_args = [sys.executable, __file__, dispatch_dir]
             _log_to_tmp('command_args: {0}'.format(command_args))
             dispatch_dir_exists = os.path.isdir(dispatch_dir)
             _log_to_tmp('dispatch_dir_exists: {0}'.format(dispatch_dir_exists))
             if dispatch_dir_exists:
-                _log_to_tmp('os.listdir(dispatch_dir): {0}'.format(os.listdir(dispatch_dir)))
-                with open(os.path.join(dispatch_dir, 'input.json'), 'r') as in_file:
+                _log_to_tmp('os.listdir(dispatch_dir): {0}'.
+                            format(os.listdir(dispatch_dir)))
+                with open(os.path.join(dispatch_dir, 'input.json'), 'r') \
+                        as in_file:
                     input_json_content = in_file.read()
             _log_to_tmp('input.json content: {0}'.format(input_json_content))
 
@@ -156,7 +161,8 @@ class TaskHandler(object):
                                       stderr=output)
                 _log_to_tmp('subprocess.check_call completed')
             except subprocess.CalledProcessError as cpe:
-                _log_to_tmp('subprocess.check_call failed, CalledProcessError caught: {0}'.format(cpe))
+                _log_to_tmp('subprocess.check_call failed, CalledProcessError '
+                            'caught: {0}'.format(cpe))
                 # this means something really bad happened because we generally
                 # catch all exceptions in the subprocess and exit cleanly
                 # regardless.
@@ -164,9 +170,11 @@ class TaskHandler(object):
                 output.close()
                 _log_to_tmp('output file closed')
                 dispatch_dir_exists = os.path.isdir(dispatch_dir)
-                _log_to_tmp('dispatch_dir_exists: {0}'.format(dispatch_dir_exists))
+                _log_to_tmp('dispatch_dir_exists: {0}'.
+                            format(dispatch_dir_exists))
                 if dispatch_dir_exists:
-                    _log_to_tmp('os.listdir(dispatch_dir): {0}'.format(os.listdir(dispatch_dir)))
+                    _log_to_tmp('os.listdir(dispatch_dir): {0}'.
+                                format(os.listdir(dispatch_dir)))
                 _log_to_tmp('reading output file content...')
                 with open(os.path.join(dispatch_dir, 'output')) as out_file:
                     output_content = out_file.read()
@@ -177,8 +185,10 @@ class TaskHandler(object):
                     'Unhandled exception occurred in operation dispatch: '
                     '{0}'.format(read_output))
             except Exception as e:
-                _log_to_tmp('subprocess.check_call failed, exception caught: {0}'.format(e))
-                with open(os.path.join(dispatch_dir, 'output.json')) as out_file:
+                _log_to_tmp('subprocess.check_call failed, exception caught: '
+                            '{0}'.format(e))
+                with open(os.path.join(dispatch_dir, 'output.json')) \
+                        as out_file:
                     output_content = out_file.read()
                 _log_to_tmp('output content: {0}'.format(output_content))
             with open(os.path.join(dispatch_dir, 'output.json')) as f:
@@ -305,9 +315,11 @@ class TaskHandler(object):
             try:
                 _local_log_to_tmp('creating handler_context...')
                 _local_log_to_tmp('self.ctx: {0}'.format(self.ctx))
-                _local_log_to_tmp('self.ctx.deployment: {0}'.format(self.ctx.deployment))
+                _local_log_to_tmp('self.ctx.deployment: {0}'.
+                                  format(self.ctx.deployment))
                 handler_context = self.ctx.deployment.id
-                _local_log_to_tmp('handler_context is: {0}'.format(handler_context))
+                _local_log_to_tmp('handler_context is: {0}'.
+                                  format(handler_context))
             except AttributeError:
                 _local_log_to_tmp('caught AttributeError')
                 handler_context = SYSTEM_DEPLOYMENT
@@ -441,9 +453,11 @@ class WorkflowHandler(TaskHandler):
         with open('/tmp/dispatcher.log', 'a') as dispather_log:
             dispather_log.write('starting WorkflowsHandler.ctx_cls\n')
             if getattr(self.func, 'workflow_system_wide', False):
-                dispather_log.write('***** calling workflow_context.CloudifySystemWideWorkflowContext... \n')
+                dispather_log.write('***** calling workflow_context.'
+                                    'CloudifySystemWideWorkflowContext... \n')
                 return workflow_context.CloudifySystemWideWorkflowContext
-            dispather_log.write('***** calling workflow_context.CloudifyWorkflowContext... \n')
+            dispather_log.write('***** calling '
+                                'workflow_context.CloudifyWorkflowContext \n')
             return workflow_context.CloudifyWorkflowContext
 
     def handle(self):
