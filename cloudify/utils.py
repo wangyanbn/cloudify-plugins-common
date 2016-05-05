@@ -113,6 +113,13 @@ def setup_logger(logger_name,
     return logger
 
 
+def get_manager_file_server_host():
+    """
+    Returns the host the manager file server is running on.
+    """
+    return os.environ[constants.FILE_SERVER_HOST_KEY]
+
+
 def get_manager_file_server_blueprints_root_url():
     """
     Returns the blueprints root url in the file server.
