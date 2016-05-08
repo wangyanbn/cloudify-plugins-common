@@ -172,12 +172,12 @@ class BootstrapContext(object):
             return self._cloudify_agent.get('agent_key_path')
 
         @property
-        def broker_host(self):
+        def broker_ip(self):
             """
             Returns the host name or IP of the rabbit server.
             An empty string should result in clients using the manager IP.
             """
-            return self._cloudify_agent.get('broker_host')
+            return self._cloudify_agent.get('broker_ip')
 
         @property
         def broker_user(self):
@@ -266,7 +266,7 @@ class BootstrapContext(object):
         broker_user, broker_pass = utils.internal.get_broker_credentials(
             bootstrap_agent
         )
-        attributes['broker_host'] = bootstrap_agent.broker_host
+        attributes['broker_ip'] = bootstrap_agent.broker_ip
         attributes['broker_user'] = broker_user
         attributes['broker_pass'] = broker_pass
         attributes['broker_ssl_enabled'] = bootstrap_agent.broker_ssl_enabled
