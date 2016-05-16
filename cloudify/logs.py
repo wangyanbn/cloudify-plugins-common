@@ -289,8 +289,8 @@ def populate_base_item(item, message_type):
     timezone = time.strftime("%z", time.gmtime())
     codeset = locale.getlocale()[1]
     if codeset:
-        #decode with correct codeset, and encode as utf-8
-        timezone = timezone.decode(codeset).encode('utf_8','ignore')
+        # decode with correct codeset, and encode as utf-8
+        timezone = timezone.decode(codeset).encode('utf_8', 'ignore')
     timestamp = str(datetime.datetime.now())[0:-3] + timezone
     item['timestamp'] = timestamp
     item['message_code'] = None
